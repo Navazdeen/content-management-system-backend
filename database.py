@@ -67,7 +67,7 @@ class Content(Base):
     topic_id = Column(Integer, ForeignKey('education_db.topic.id'))
     subtopic_id = Column(Integer, ForeignKey('education_db.sub_topic.id'))
 
-    # topic = relationship('Topic')
+    topic = relationship('Topic')
     # subtopic = relationship('SubTopic')
 
 
