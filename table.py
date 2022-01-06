@@ -8,16 +8,16 @@ class Quizz_Table():
         session = SessionMaker()
         results = session.query(Quizz).filter_by(topic_id=id).all()
         session.close()
-        temp = {}
+        temp = []
         for result in results:
             id = result.question_id
-            temp[id] = {'id': result.question_id, 'question': result.question, 'options': [
-                result.option1, result.option2, result.option3, result.option4]}
-        return(json.dumps(temp))
+            temp.append({'id': result.question_id, 'question': result.question, 'options': [
+                result.option1, result.option2, result.option3, result.option4, result.Anwers]})
+        return(json.dumps(dict(question = temp)))
 
-    def delete_question(self, id, commit=True):
+    def delete_question(self, topic_id, id):
         session = SessionMaker()
-        result = session.query(Quizz).filter_by(question_id=id).first()
+        result = session.query(Quizz).filter_by(question_id=id, topic_id=topic_id).first()
         if result:
             session.delete(result)
             session.commit()
@@ -36,6 +36,7 @@ class Quizz_Table():
 
 
 class Topic_Table():
+
     def get_topic(self):
         session = SessionMaker()
         results = session.query(Topic).all()
@@ -43,8 +44,8 @@ class Topic_Table():
         temp = {}
         for result in results:
             id = result.id
-            temp[id] = {'id': result.id, 'name': result.topic_name}
-        return(json.dumps(temp))
+            temp['T_'+str(id)] = result.topic_name
+        return(json.dumps(temp)), 200
 
     def update_topic(self, id, name):
         session = SessionMaker()
@@ -82,29 +83,31 @@ class Subtopic_Table():
         session.close()
         temp = {}
         for result in results:
-            temp[result.id] = {'id': result.id, 'name': result.subtopic_name}
+            temp['S_'+str(result.id)] = result.subtopic_name
         return (json.dumps(temp))
 
     def add_subtopic(self, name, topic_id):
         session = SessionMaker()
-        subtopic = SubTopic(subtopic_name= name, topic_id=topic_id)
+        subtopic = SubTopic(subtopic_name=name, topic_id=topic_id)
         session.add(subtopic)
         session.commit()
         session.close()
         return(json.dumps(dict(response='added successfully', status=200)))
-    
+
     def update_subtopic(self, name, id, topic_id):
         session = SessionMaker()
-        result = session.query(SubTopic).filter_by(id=id, topic_id=topic_id).first()
-        if result:    
+        result = session.query(SubTopic).filter_by(
+            id=id, topic_id=topic_id).first()
+        if result:
             result.subtopic_name = name
             session.commit()
             return(json.dumps(dict(response='updated successfully', status=200)))
         return(json.dumps(dict(response='Not found', status=404)))
-    
-    def delete_subtopic(self, id):
+
+    def delete_subtopic(self, id, topic_id):
         session = SessionMaker()
-        result = session.query(SubTopic).filter_by(id=id).first()
+        result = session.query(SubTopic).filter_by(
+            id=id, topic_id=topic_id).first()
         if result:
             session.delete(result)
             session.commit()
@@ -115,40 +118,54 @@ class Subtopic_Table():
 class Content_Table():
     def get_content(self, topic_id, subtopic_id):
         session = SessionMaker()
-        results = session.query(Content).filter_by(topic_id=topic_id, subtopic_id=subtopic_id).all()
+        results = session.query(Content).filter_by(
+            topic_id=topic_id, subtopic_id=subtopic_id).all()
         session.close()
         temp = {}
         for result in results:
-            temp[result.id] = {'id': result.id, 'name': result.content_name, 'desc':result.content_desc}
+            temp['C_'+str(result.id)] = result.content_name
         return(json.dumps(temp))
-    
+
+    def get_desc(self, topic_id, subtopic_id, id):
+        session = SessionMaker()
+        results = session.query(Content).filter_by(
+            topic_id=topic_id, subtopic_id=subtopic_id, id=id).all()
+        session.close()
+        temp = {}
+        for result in results:
+            temp['desc'] = result.content_desc
+        return(json.dumps(temp))
+
     def add_content(self, topic_id, subtopic_id, content_name, content_desc=''):
         session = SessionMaker()
-        content = Content(topic_id=topic_id, subtopic_id=subtopic_id, content_name=content_name, content_desc=content_desc)
+        content = Content(topic_id=topic_id, subtopic_id=subtopic_id,
+                          content_name=content_name, content_desc=content_desc)
         session.add(content)
         session.commit()
         return(json.dumps(dict(response='added successfully', status=200)))
 
     def update_content(self, topic_id, subtopic_id, id, content_name=None, content_desc=None):
-        session =SessionMaker()
-        result = session.query(Content).filter_by(topic_id=topic_id, subtopic_id=subtopic_id, id=id).first()
-        if result:    
-            if content_name: result.content_name = content_name  
-            else: result.content_desc = content_desc
+        session = SessionMaker()
+        result = session.query(Content).filter_by(
+            topic_id=topic_id, subtopic_id=subtopic_id, id=id).first()
+        if result:
+            if content_name:
+                result.content_name = content_name
+            else:
+                result.content_desc = content_desc
             session.commit()
             return(json.dumps(dict(response='updateed successfully', status=200)))
         return(json.dumps(dict(response='Not found', status=404)))
 
     def delete_content(self, topic_id, subtopic_id, id):
-        session= SessionMaker()
-        result = session.query(Content).filter_by(topic_id=topic_id, subtopic_id=subtopic_id, id=id).first()
+        session = SessionMaker()
+        result = session.query(Content).filter_by(
+            topic_id=topic_id, subtopic_id=subtopic_id, id=id).first()
         if result:
             session.delete(result)
             session.commit()
             return(json.dumps(dict(response='deleted successfully', status=200)))
         return(json.dumps(dict(response='Not found', status=404)))
-
-
 
 
 if __name__ == '__main__':
