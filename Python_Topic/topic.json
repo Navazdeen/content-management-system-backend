@@ -1,0 +1,22 @@
+"insert  a topic" - {"name":"Artificial intelligence"}
+"select a topic - no params"
+"upadte the topic" - {"id":1,"topic_name":"Ai"}
+"delete the topic" - {"topic_id":1}
+
+----------------------------------------------
+
+"insert a subtopic" - {"name":"ML","topic_id":1}
+"select a subtopic" - {"topic_id":1}
+"update a subtopic" - {"id":1,"name":"Machine Learning"}
+"delete a sub topic" - {"id":1}
+
+
+----------------------------------------------------------------
+
+"insert a content" - {"name":"Linear Regression","desc":"Predictions","topic_id":1,"subtopic_id":1}
+"select a content" - {"topic_id":1,"subtopic_id":1}
+"update a content" - {"id":1,"name":"Logistic Regression"}
+"delete a content" - {"id":1}
+"get content desc" - {"topic_id":1,"subtopic_id":1,"id":1}
+
+-------------------------------------------------------------------
